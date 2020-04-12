@@ -68,13 +68,12 @@ public class OperatingSystem {
 
 	}
 
-	private  void createProcess(int processID) {
+	private void createProcess(int processID) {
 		Process p = new Process(processID);
 		ProcessTable.add(p);
 		Process.setProcessState(p, ProcessState.Ready);
 		addElement(p);
 //		p.start();
-		
 
 	}
 
@@ -108,41 +107,42 @@ public class OperatingSystem {
 		}
 		System.out.println("Closing...");
 	}
+
 	static Thread t1;
 
 	public static void main(String[] args) {
 		ProcessTable = new ArrayList<Thread>();
 		ReadyQueue = new LinkedList<Process>();
+		initializeSemaphores();
 		OperatingSystem os = new OperatingSystem();
-		 t1 = new Thread() {
+		t1 = new Thread() {
 			public void run() {
 				synchronized (this) {
-					
-				
-				while (true) {
-					/*
-					 * Proces p =removeElement();
-					 * 
-					 * p.start() or p.notify()
-					 * 
-					 */
-					try {
-						Process p = os.removeElement();
-						System.out.println("I got the process");
-						p.start();
-						System.out.println("the process is running");
+
+					while (true) {
+						/*
+						 * Proces p =removeElement();
+						 * 
+						 * p.start() or p.notify()
+						 * 
+						 */
+						try {
+							Process p = os.removeElement();
+							System.out.println("I got the process");
+							p.start();
+							System.out.println("the process is running");
 
 //						while (Process.getProcessState(p) != ProcessState.Terminated) {
 //							this.wait();
 //						}
-						p.join();
+							p.join();
 
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 				}
-			}
 			}
 		};
 		t1.start();
@@ -164,8 +164,43 @@ public class OperatingSystem {
 		writeFile = new Semaphore();
 	}
 
-	public static void semPrintWait(Process task) throws InterruptedException {
+	public static synchronized void semPrintWait(Process task) throws InterruptedException {
 		printText.semWait(task);
+
+	}
+
+	public static synchronized void semPrintPost(Process task) throws InterruptedException {
+		printText.semPost(task);
+
+	}
+
+	public static synchronized void semReadFileWait(Process task) throws InterruptedException {
+		readFile.semWait(task);
+
+	}
+
+	public static synchronized void semReadFilePost(Process task) throws InterruptedException {
+		readFile.semPost(task);
+
+	}
+
+	public static synchronized void semScreenInputWait(Process task) throws InterruptedException {
+		takeInput.semWait(task);
+
+	}
+
+	public static synchronized void semScreenInputPost(Process task) throws InterruptedException {
+		takeInput.semPost(task);
+
+	}
+
+	public static synchronized void semWriteFileWait(Process task) throws InterruptedException {
+		writeFile.semWait(task);
+
+	}
+
+	public static synchronized void semWriteFilePost(Process task) throws InterruptedException {
+		writeFile.semPost(task);
 
 	}
 
@@ -176,7 +211,7 @@ public class OperatingSystem {
 		private boolean available;
 
 		public Semaphore() {
-			ID = -1;
+			blockedQueue = new LinkedList<Process>();
 			available = true;
 		}
 
