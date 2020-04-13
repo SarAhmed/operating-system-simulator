@@ -73,7 +73,6 @@ public class OperatingSystem {
 		ProcessTable.add(p);
 		Process.setProcessState(p, ProcessState.Ready);
 		addElement(p);
-//		p.start();
 
 	}
 
@@ -83,9 +82,9 @@ public class OperatingSystem {
 
 			// while the list is empty, wait
 			while (ReadyQueue.isEmpty()) {
-				System.out.println("List is empty...");
+//				System.out.println("List is empty...");
 				ReadyQueue.wait();
-				System.out.println("Waiting...");
+//				System.out.println("Waiting...");
 			}
 			Process element = ReadyQueue.poll();
 
@@ -100,41 +99,38 @@ public class OperatingSystem {
 
 			// add an element and notify all that an element exists
 			ReadyQueue.add(element);
-			System.out.println("New Element:'" + element + "'");
+//			System.out.println("New Element:'" + element + "'");
 
 			ReadyQueue.notify();
-			System.out.println("notifyAll called!");
+//			System.out.println("notifyAll called!");
 		}
-		System.out.println("Closing...");
+//		System.out.println("Closing...");
 	}
 
 	static Thread t1;
+	static OperatingSystem os = new OperatingSystem();
 
 	public static void main(String[] args) {
 		ProcessTable = new ArrayList<Thread>();
 		ReadyQueue = new LinkedList<Process>();
 		initializeSemaphores();
-		OperatingSystem os = new OperatingSystem();
 		t1 = new Thread() {
 			public void run() {
 				synchronized (this) {
 
 					while (true) {
-						/*
-						 * Proces p =removeElement();
-						 * 
-						 * p.start() or p.notify()
-						 * 
-						 */
-						try {
-							Process p = os.removeElement();
-							System.out.println("I got the process");
-							p.start();
-							System.out.println("the process is running");
 
-//						while (Process.getProcessState(p) != ProcessState.Terminated) {
-//							this.wait();
-//						}
+						try {
+
+							Process p = os.removeElement();
+							if (!p.started) {
+								p.started = true;
+								p.start();
+
+							} else {
+								p.resume();
+							}
+
 							p.join();
 
 						} catch (Exception e) {
@@ -151,9 +147,7 @@ public class OperatingSystem {
 		os.createProcess(4);
 		os.createProcess(2);
 		os.createProcess(1);
-//		
 		os.createProcess(5);
-//		os.createProcess(5);
 
 	}
 
@@ -164,42 +158,42 @@ public class OperatingSystem {
 		writeFile = new Semaphore();
 	}
 
-	public static synchronized void semPrintWait(Process task) throws InterruptedException {
+	public static void semPrintWait(Process task) throws InterruptedException {
 		printText.semWait(task);
 
 	}
 
-	public static synchronized void semPrintPost(Process task) throws InterruptedException {
+	public static void semPrintPost(Process task) throws InterruptedException {
 		printText.semPost(task);
 
 	}
 
-	public static synchronized void semReadFileWait(Process task) throws InterruptedException {
+	public static void semReadFileWait(Process task) throws InterruptedException {
 		readFile.semWait(task);
 
 	}
 
-	public static synchronized void semReadFilePost(Process task) throws InterruptedException {
+	public static void semReadFilePost(Process task) throws InterruptedException {
 		readFile.semPost(task);
 
 	}
 
-	public static synchronized void semScreenInputWait(Process task) throws InterruptedException {
+	public static void semScreenInputWait(Process task) throws InterruptedException {
 		takeInput.semWait(task);
 
 	}
 
-	public static synchronized void semScreenInputPost(Process task) throws InterruptedException {
+	public static void semScreenInputPost(Process task) throws InterruptedException {
 		takeInput.semPost(task);
 
 	}
 
-	public static synchronized void semWriteFileWait(Process task) throws InterruptedException {
+	public static void semWriteFileWait(Process task) throws InterruptedException {
 		writeFile.semWait(task);
 
 	}
 
-	public static synchronized void semWriteFilePost(Process task) throws InterruptedException {
+	public static void semWriteFilePost(Process task) throws InterruptedException {
 		writeFile.semPost(task);
 
 	}
@@ -219,7 +213,7 @@ public class OperatingSystem {
 			return available;
 		}
 
-		public synchronized boolean semWait(Process process) throws InterruptedException {
+		public boolean semWait(Process process) throws InterruptedException {
 			int processID = process.processID;
 			if (isAvailable()) {
 				available = false;
@@ -228,22 +222,26 @@ public class OperatingSystem {
 			} else {
 				blockedQueue.add(process);
 				Process.setProcessState(process, ProcessState.Waiting);
-				while (!isAvailable()) { // ask merna
-					process.wait();
-
+//				while (!isAvailable()) { // ask merna
+//					process.wait();
+//
+//				}
+				if (!isAvailable()) {
+					process.suspend();
 				}
 			}
 			return false;
 		}
 
-		public synchronized boolean semPost(Process process) {
+		public boolean semPost(Process process) {
 			int processID = process.processID;
+
 			if (ID == processID) {
 				if (!blockedQueue.isEmpty()) {
 					Process p = blockedQueue.poll();
 					ID = p.processID;
 					Process.setProcessState(p, ProcessState.Ready);
-					ReadyQueue.add(p);
+					os.addElement(p);
 				} else {
 					setAvailable();
 

@@ -4,6 +4,7 @@ public class Process extends Thread {
 
 	public int processID;
 	ProcessState status = ProcessState.New;
+	public boolean started;
 
 	public Process(int m) {
 		processID = m;
@@ -102,9 +103,8 @@ public class Process extends Thread {
 			x++;
 		}
 		setProcessState(this, ProcessState.Terminated);
-		
-		OperatingSystem.semPrintPost(this);
 
+		OperatingSystem.semPrintPost(this);
 
 	}
 
@@ -126,7 +126,7 @@ public class Process extends Thread {
 		}
 		OperatingSystem.writefile("P5.txt", data);
 		setProcessState(this, ProcessState.Terminated);
-		
+
 		OperatingSystem.semScreenInputPost(this);
 		OperatingSystem.semPrintPost(this);
 		OperatingSystem.semWriteFilePost(this);
@@ -142,5 +142,10 @@ public class Process extends Thread {
 
 	public static ProcessState getProcessState(Process p) {
 		return p.status;
+	}
+
+	@Override
+	public String toString() {
+		return "Process " + processID;
 	}
 }
