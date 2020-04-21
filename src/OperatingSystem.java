@@ -114,24 +114,43 @@ public class OperatingSystem {
 		ProcessTable = new ArrayList<Thread>();
 		ReadyQueue = new LinkedList<Process>();
 		initializeSemaphores();
+		scheduler();
+		// run method looping
+		os.createProcess(3);
+//		os.createProcess(4);
+//		os.createProcess(2);
+		os.createProcess(1);
+//		os.createProcess(5);
+
+	}
+
+	private static void scheduler() {
 		t1 = new Thread() {
 			public void run() {
 				synchronized (this) {
-
+					int toBeBlocked = 0;
 					while (true) {
 
 						try {
 
 							Process p = os.removeElement();
+//							toBeBlocked++;
 							if (!p.started) {
+								p.status = ProcessState.Running;
 								p.started = true;
 								p.start();
 
 							} else {
+								p.status = ProcessState.Running;
 								p.resume();
 							}
-
-							p.join();
+//							if(toBeBlocked==1) {
+//								p.status= ProcessState.Waiting;
+//								p.suspend();
+//							}
+							while (p.status == ProcessState.Running)
+								;
+//							p.join();
 
 						} catch (Exception e) {
 							// TODO Auto-generated catch block
@@ -142,13 +161,7 @@ public class OperatingSystem {
 			}
 		};
 		t1.start();
-		// run method looping
-		os.createProcess(3);
-		os.createProcess(4);
-		os.createProcess(2);
-		os.createProcess(1);
-		os.createProcess(5);
-
+		
 	}
 
 	private static void initializeSemaphores() {
