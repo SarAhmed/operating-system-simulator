@@ -1,4 +1,3 @@
-//import java.util.concurrent.Semaphore;
 
 public class Process extends Thread {
 
@@ -38,16 +37,15 @@ public class Process extends Thread {
 	}
 
 	private void process1() throws InterruptedException {
-		// semwait printText
+
 		OperatingSystem.semPrintWait(this);
 		OperatingSystem.semReadFileWait(this);
 		OperatingSystem.semScreenInputWait(this);
 
+
 		OperatingSystem.printText("Enter File Name: ");
 
-		// semwait takeInput, ReadFile
 		OperatingSystem.printText(OperatingSystem.readFile(OperatingSystem.TakeInput()));
-		// semPost printText, takeInput, ReadFile
 
 		setProcessState(this, ProcessState.Terminated);
 
@@ -57,21 +55,15 @@ public class Process extends Thread {
 	}
 
 	private void process2() throws InterruptedException {
-		// semwait print
 		OperatingSystem.semPrintWait(this);
-		OperatingSystem.semScreenInputWait(this);
 		OperatingSystem.semWriteFileWait(this);
+		OperatingSystem.semScreenInputWait(this);
 
 		OperatingSystem.printText("Enter File Name: ");
-		// semwait takeInput
 		String filename = OperatingSystem.TakeInput();
 		OperatingSystem.printText("Enter Data: ");
-		// sempost print
 		String data = OperatingSystem.TakeInput();
-		// sempost takeInput
-		// semwait writeFile
 		OperatingSystem.writefile(filename, data);
-		// sempost writeFile
 		setProcessState(this, ProcessState.Terminated);
 
 		OperatingSystem.semPrintPost(this);
@@ -109,9 +101,9 @@ public class Process extends Thread {
 	}
 
 	private void process5() throws InterruptedException {
-		OperatingSystem.semScreenInputWait(this);
 		OperatingSystem.semPrintWait(this);
 		OperatingSystem.semWriteFileWait(this);
+		OperatingSystem.semScreenInputWait(this);
 
 		OperatingSystem.printText("Enter LowerBound: ");
 		String lower = OperatingSystem.TakeInput();
@@ -127,9 +119,9 @@ public class Process extends Thread {
 		OperatingSystem.writefile("P5.txt", data);
 		setProcessState(this, ProcessState.Terminated);
 
-		OperatingSystem.semScreenInputPost(this);
 		OperatingSystem.semPrintPost(this);
 		OperatingSystem.semWriteFilePost(this);
+		OperatingSystem.semScreenInputPost(this);
 
 	}
 

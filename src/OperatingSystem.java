@@ -18,7 +18,7 @@ public class OperatingSystem {
 	public static Semaphore printText;
 	public static Semaphore takeInput;
 
-//	public static int activeProcess= 0;
+	// public static int activeProcess= 0;
 	// system calls:
 	// 1- Read from File
 	@SuppressWarnings("unused")
@@ -76,15 +76,14 @@ public class OperatingSystem {
 
 	}
 
-	// method used to remove an element from the list
+	// method used to remove and return an element from the ReadyQueue
 	public Process removeElement() throws InterruptedException {
 		synchronized (ReadyQueue) {
 
-			// while the list is empty, wait
+			// while the list is empty, wait (makes the dispatcher waiting till a process is
+			// added)
 			while (ReadyQueue.isEmpty()) {
-//				System.out.println("List is empty...");
 				ReadyQueue.wait();
-//				System.out.println("Waiting...");
 			}
 			Process element = ReadyQueue.poll();
 
@@ -92,49 +91,74 @@ public class OperatingSystem {
 		}
 	}
 
-	// method to add an element in the list
+	// method to add an element in the ReadyQueue
 	public void addElement(Process element) {
-		System.out.println("Opening...");
 		synchronized (ReadyQueue) {
 
-			// add an element and notify all that an element exists
 			ReadyQueue.add(element);
-//			System.out.println("New Element:'" + element + "'");
-
 			ReadyQueue.notify();
-//			System.out.println("notifyAll called!");
 		}
-//		System.out.println("Closing...");
 	}
 
-	static Thread t1;
 	static OperatingSystem os = new OperatingSystem();
 
 	public static void main(String[] args) {
 		ProcessTable = new ArrayList<Thread>();
 		ReadyQueue = new LinkedList<Process>();
 		initializeSemaphores();
-		t1 = new Thread() {
+		/*
+		 * Because the os should be always waiting for any process to execute it. the
+		 * dispatcher should not terminate after the ready queue is empty, may be a
+		 * process will be created after some time.
+		 * 
+		 * If you want the dispatcher to stop execution whenever the ReadyQueue is empty
+		 * please comment the next line -->dispatcher(); on line 119 and
+		 * uncomment-->dispatcher2(); on line 126
+		 * 
+		 */
+		dispatcher();
+		os.createProcess(3);
+		os.createProcess(4);
+		os.createProcess(2);
+		os.createProcess(1);
+		os.createProcess(5);
+//		dispatcher2();
+
+	}
+
+	public static void dispatcher() {
+		Thread t1 = new Thread() {
 			public void run() {
 				synchronized (this) {
 
 					while (true) {
 
 						try {
-
+							/*
+							 * Remove the next process from the ReadyQueue based on the First Come First
+							 * Serve concept
+							 */
 							Process p = os.removeElement();
+							// If this the first time to execute the process invoke the .start() method
 							if (!p.started) {
+								p.status = ProcessState.Running;
 								p.started = true;
 								p.start();
 
-							} else {
+							} else { // Otherwise resume execution of the process
+								p.status = ProcessState.Running;
 								p.resume();
 							}
-
-							p.join();
+							/*
+							 * The next loop assures that the dispatcher will no dispatch another process
+							 * from the ReadyQueue till the current process either finishes
+							 * execution(terminated) or gets blocked(waiting)
+							 */
+							// Comment the next while loop if you want to run all the threads in pararrel
+							while (p.status == ProcessState.Running)
+								;
 
 						} catch (Exception e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					}
@@ -142,12 +166,41 @@ public class OperatingSystem {
 			}
 		};
 		t1.start();
-		// run method looping
-		os.createProcess(3);
-		os.createProcess(4);
-		os.createProcess(2);
-		os.createProcess(1);
-		os.createProcess(5);
+	}
+
+	public static void dispatcher2() {
+
+		while (!ReadyQueue.isEmpty()) {
+
+			try {
+				/*
+				 * Remove the next process from the ReadyQueue based on the First Come First
+				 * Serve concept
+				 */
+				Process p = os.removeElement();
+				// If this the first time to execute the process invoke the .start() method
+				if (!p.started) {
+					p.status = ProcessState.Running;
+					p.started = true;
+					p.start();
+
+				} else { // Otherwise resume execution of the process
+					p.status = ProcessState.Running;
+					p.resume();
+				}
+				/*
+				 * The next loop assures that the dispatcher will no dispatch another process
+				 * from the ReadyQueue till the current process either finishes
+				 * execution(terminated) or gets blocked(waiting)
+				 */
+				// Comment the next while loop if you want to run all the threads in pararrel
+				while (p.status == ProcessState.Running)
+					;
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 
 	}
 
@@ -222,10 +275,7 @@ public class OperatingSystem {
 			} else {
 				blockedQueue.add(process);
 				Process.setProcessState(process, ProcessState.Waiting);
-//				while (!isAvailable()) { // ask merna
-//					process.wait();
-//
-//				}
+				
 				if (!isAvailable()) {
 					process.suspend();
 				}
