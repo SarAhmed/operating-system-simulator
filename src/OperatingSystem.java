@@ -18,7 +18,6 @@ public class OperatingSystem {
 	public static Semaphore printText;
 	public static Semaphore takeInput;
 
-	// public static int activeProcess= 0;
 	// system calls:
 	// 1- Read from File
 	@SuppressWarnings("unused")
