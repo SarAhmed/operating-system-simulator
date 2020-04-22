@@ -18,6 +18,7 @@ public class OperatingSystem {
 	public static Semaphore printText;
 	public static Semaphore takeInput;
 
+	// public static int activeProcess= 0;
 	// system calls:
 	// 1- Read from File
 	@SuppressWarnings("unused")
@@ -153,9 +154,9 @@ public class OperatingSystem {
 							 * from the ReadyQueue till the current process either finishes
 							 * execution(terminated) or gets blocked(waiting)
 							 */
-							// Comment the next while loop if you want to run all the threads in pararrel
-							while (p.status == ProcessState.Running)
-								;
+							// Comment the next while loop if you want to run all the threads in parallel
+							while (p.status==ProcessState.Running);
+								
 
 						} catch (Exception e) {
 							e.printStackTrace();

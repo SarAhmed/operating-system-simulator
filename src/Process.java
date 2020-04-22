@@ -2,7 +2,7 @@
 public class Process extends Thread {
 
 	public int processID;
-	ProcessState status = ProcessState.New;
+	volatile ProcessState status = ProcessState.New;
 	public boolean started;
 
 	public Process(int m) {
