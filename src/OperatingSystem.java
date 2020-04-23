@@ -17,7 +17,7 @@ public class OperatingSystem {
 	public static Semaphore writeFile;
 	public static Semaphore printText;
 	public static Semaphore takeInput;
-
+	static Thread t1;
 	// public static int activeProcess= 0;
 	// system calls:
 	// 1- Read from File
@@ -77,27 +77,39 @@ public class OperatingSystem {
 	}
 
 	// method used to remove and return an element from the ReadyQueue
+//	public Process removeElement() throws InterruptedException {
+//		synchronized (ReadyQueue) {
+//
+//			// while the list is empty, wait (makes the dispatcher waiting till a process is
+//			// added)
+//			while (ReadyQueue.isEmpty()) {
+//				ReadyQueue.wait();
+//			}
+//			Process element = ReadyQueue.poll();
+//
+//			return element;
+//		}
+//	}
 	public Process removeElement() throws InterruptedException {
-		synchronized (ReadyQueue) {
+
 
 			// while the list is empty, wait (makes the dispatcher waiting till a process is
 			// added)
-			while (ReadyQueue.isEmpty()) {
-				ReadyQueue.wait();
-			}
+			
+			
 			Process element = ReadyQueue.poll();
 
 			return element;
-		}
+		
 	}
 
 	// method to add an element in the ReadyQueue
 	public void addElement(Process element) {
-		synchronized (ReadyQueue) {
-
 			ReadyQueue.add(element);
-			ReadyQueue.notify();
-		}
+		if (ReadyQueue.size() == 1 && t1 != null)
+			t1.resume();
+
+		
 	}
 
 	static OperatingSystem os = new OperatingSystem();
@@ -116,20 +128,21 @@ public class OperatingSystem {
 		 * uncomment-->dispatcher2(); on line 126
 		 * 
 		 */
-		dispatcher();
+//		dispatcher();
 		os.createProcess(3);
 		os.createProcess(4);
+		os.createProcess(5);
 		os.createProcess(2);
 		os.createProcess(1);
-		os.createProcess(5);
-//		dispatcher2();
+		
+		dispatcher2();
+
 
 	}
 
-	public static void dispatcher() {
-		Thread t1 = new Thread() {
+	public static void dispatcher2() {
+		 t1 = new Thread() {
 			public void run() {
-				synchronized (this) {
 
 					while (true) {
 
@@ -138,6 +151,12 @@ public class OperatingSystem {
 							 * Remove the next process from the ReadyQueue based on the First Come First
 							 * Serve concept
 							 */
+							System.out.println("readFile: "+readFile.blockedQueue);
+							System.out.println("writeFile: "+writeFile.blockedQueue);
+							System.out.println("printText: "+printText.blockedQueue);
+							System.out.println("takeInput: "+takeInput.blockedQueue);
+
+							if(ReadyQueue.isEmpty())t1.suspend();
 							Process p = os.removeElement();
 							// If this the first time to execute the process invoke the .start() method
 							if (!p.started) {
@@ -155,7 +174,7 @@ public class OperatingSystem {
 							 * execution(terminated) or gets blocked(waiting)
 							 */
 							// Comment the next while loop if you want to run all the threads in parallel
-							while (p.status==ProcessState.Running);
+//							while (p.status==ProcessState.Running);
 								
 
 						} catch (Exception e) {
@@ -163,12 +182,12 @@ public class OperatingSystem {
 						}
 					}
 				}
-			}
+			
 		};
 		t1.start();
 	}
 
-	public static void dispatcher2() {
+	public static void dispatcher() {
 
 		while (!ReadyQueue.isEmpty()) {
 
@@ -194,8 +213,8 @@ public class OperatingSystem {
 				 * execution(terminated) or gets blocked(waiting)
 				 */
 				// Comment the next while loop if you want to run all the threads in pararrel
-				while (p.status == ProcessState.Running)
-					;
+//				while (p.status == ProcessState.Running)
+//					;
 
 			} catch (Exception e) {
 				e.printStackTrace();
