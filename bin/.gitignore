@@ -1,3 +1,5 @@
-/OperatingSystem.class
 /OperatingSystem$1.class
 /OperatingSystem$Semaphore.class
+/OperatingSystem.class
+/Process.class
+/ProcessState.class

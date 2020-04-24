@@ -98,12 +98,11 @@ public class OperatingSystem {
 		ReadyQueue = new LinkedList<Process>();
 		initializeSemaphores();
 		/*
-		 * Because the os should be always waiting for any process to execute it. the
-		 * dispatcher should not terminate after the ready queue is empty, may be a
-		 * process will be created after some time.
+		 * Because the Operating System should be always waiting for any process to
+		 * execute. The dispatcher should not terminate after the ready queue is empty,
+		 * maybe a process will be created after some time.
 		 * 
-		 *************************** IMPORTANT**************PLEASE READ*******************************
-		 * If you want
+		 *************************** IMPORTANT**************PLEASE READ******************************* If you want
 		 * the dispatcher to stop execution whenever the ReadyQueue is empty please
 		 * comment the next line -->dispatcher2(); on line 120 and
 		 * uncomment-->dispatcher(); on line 119
@@ -144,12 +143,12 @@ public class OperatingSystem {
 						Process p = os.removeElement();
 						// If this the first time to execute the process invoke the .start() method
 						if (!p.started) {
-							p.status = ProcessState.Running;
+							Process.setProcessState(p, ProcessState.Running);
 							p.started = true;
 							p.start();
 
 						} else { // Otherwise resume execution of the process
-							p.status = ProcessState.Running;
+							Process.setProcessState(p, ProcessState.Running);
 							p.resume();
 						}
 						/*
@@ -158,7 +157,7 @@ public class OperatingSystem {
 						 * execution(terminated) or gets blocked(waiting)
 						 */
 						// Comment the next while loop if you want to run all the threads in parallel
-						while (p.status == ProcessState.Running)
+						while (Process.getProcessState(p) == ProcessState.Running)
 							;
 
 					} catch (Exception e) {
@@ -181,12 +180,12 @@ public class OperatingSystem {
 				Process p = os.removeElement();
 				// If this the first time to execute the process invoke the .start() method
 				if (!p.started) {
-					p.status = ProcessState.Running;
+					Process.setProcessState(p, ProcessState.Running);
 					p.started = true;
 					p.start();
 
 				} else { // Otherwise resume execution of the process
-					p.status = ProcessState.Running;
+					Process.setProcessState(p, ProcessState.Running);
 					p.resume();
 				}
 
