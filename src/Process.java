@@ -47,11 +47,12 @@ public class Process extends Thread {
 
 		OperatingSystem.printText(OperatingSystem.readFile(OperatingSystem.TakeInput()));
 
-		setProcessState(this, ProcessState.Terminated);
 
 		OperatingSystem.semPrintPost(this);
 		OperatingSystem.semReadFilePost(this);
 		OperatingSystem.semScreenInputPost(this);
+		
+		setProcessState(this, ProcessState.Terminated);
 	}
 
 	private void process2() throws InterruptedException {
@@ -64,12 +65,12 @@ public class Process extends Thread {
 		OperatingSystem.printText("Enter Data: ");
 		String data = OperatingSystem.TakeInput();
 		OperatingSystem.writefile(filename, data);
-		setProcessState(this, ProcessState.Terminated);
 
 		OperatingSystem.semPrintPost(this);
 		OperatingSystem.semScreenInputPost(this);
 		OperatingSystem.semWriteFilePost(this);
 
+		setProcessState(this, ProcessState.Terminated);
 	}
 
 	private void process3() throws InterruptedException {
@@ -80,9 +81,9 @@ public class Process extends Thread {
 			OperatingSystem.printText(x + "\n");
 			x++;
 		}
-		setProcessState(this, ProcessState.Terminated);
 
 		OperatingSystem.semPrintPost(this);
+		setProcessState(this, ProcessState.Terminated);
 
 	}
 
@@ -94,9 +95,9 @@ public class Process extends Thread {
 			OperatingSystem.printText(x + "\n");
 			x++;
 		}
-		setProcessState(this, ProcessState.Terminated);
 
 		OperatingSystem.semPrintPost(this);
+		setProcessState(this, ProcessState.Terminated);
 
 	}
 
@@ -117,12 +118,12 @@ public class Process extends Thread {
 			data += lowernbr++ + "\n";
 		}
 		OperatingSystem.writefile("P5.txt", data);
-		setProcessState(this, ProcessState.Terminated);
 
 		OperatingSystem.semPrintPost(this);
 		OperatingSystem.semWriteFilePost(this);
 		OperatingSystem.semScreenInputPost(this);
 
+		setProcessState(this, ProcessState.Terminated);
 	}
 
 	public static void setProcessState(Process p, ProcessState s) {

@@ -76,10 +76,8 @@ public class OperatingSystem {
 
 	}
 
-
 	public Process removeElement() throws InterruptedException {
 
-		
 		Process element = ReadyQueue.poll();
 
 		return element;
@@ -104,9 +102,11 @@ public class OperatingSystem {
 		 * dispatcher should not terminate after the ready queue is empty, may be a
 		 * process will be created after some time.
 		 * 
-		 * If you want the dispatcher to stop execution whenever the ReadyQueue is empty
-		 * please comment the next line -->dispatcher()2; on line 119 and
-		 * uncomment-->dispatcher(); on line 126
+		 *************************** IMPORTANT**************PLEASE READ*******************************
+		 * If you want
+		 * the dispatcher to stop execution whenever the ReadyQueue is empty please
+		 * comment the next line -->dispatcher2(); on line 120 and
+		 * uncomment-->dispatcher(); on line 119
 		 * 
 		 */
 
@@ -116,8 +116,6 @@ public class OperatingSystem {
 		os.createProcess(4);
 		os.createProcess(5);
 
-		
-		
 //		dispatcher();
 		dispatcher2();
 
@@ -160,7 +158,8 @@ public class OperatingSystem {
 						 * execution(terminated) or gets blocked(waiting)
 						 */
 						// Comment the next while loop if you want to run all the threads in parallel
-//							while (p.status==ProcessState.Running);
+						while (p.status == ProcessState.Running)
+							;
 
 					} catch (Exception e) {
 					}
