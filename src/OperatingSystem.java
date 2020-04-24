@@ -18,7 +18,7 @@ public class OperatingSystem {
 	public static Semaphore printText;
 	public static Semaphore takeInput;
 	static Thread t1;
-	// public static int activeProcess= 0;
+
 	// system calls:
 	// 1- Read from File
 	@SuppressWarnings("unused")
@@ -76,40 +76,21 @@ public class OperatingSystem {
 
 	}
 
-	// method used to remove and return an element from the ReadyQueue
-//	public Process removeElement() throws InterruptedException {
-//		synchronized (ReadyQueue) {
-//
-//			// while the list is empty, wait (makes the dispatcher waiting till a process is
-//			// added)
-//			while (ReadyQueue.isEmpty()) {
-//				ReadyQueue.wait();
-//			}
-//			Process element = ReadyQueue.poll();
-//
-//			return element;
-//		}
-//	}
+
 	public Process removeElement() throws InterruptedException {
 
-
-			// while the list is empty, wait (makes the dispatcher waiting till a process is
-			// added)
-			
-			
-			Process element = ReadyQueue.poll();
-
-			return element;
 		
+		Process element = ReadyQueue.poll();
+
+		return element;
+
 	}
 
-	// method to add an element in the ReadyQueue
 	public void addElement(Process element) {
-			ReadyQueue.add(element);
+		ReadyQueue.add(element);
 		if (ReadyQueue.size() == 1 && t1 != null)
 			t1.resume();
 
-		
 	}
 
 	static OperatingSystem os = new OperatingSystem();
@@ -124,71 +105,73 @@ public class OperatingSystem {
 		 * process will be created after some time.
 		 * 
 		 * If you want the dispatcher to stop execution whenever the ReadyQueue is empty
-		 * please comment the next line -->dispatcher(); on line 119 and
-		 * uncomment-->dispatcher2(); on line 126
+		 * please comment the next line -->dispatcher()2; on line 119 and
+		 * uncomment-->dispatcher(); on line 126
 		 * 
 		 */
-//		dispatcher();
+
+		os.createProcess(1);
+		os.createProcess(2);
 		os.createProcess(3);
 		os.createProcess(4);
 		os.createProcess(5);
-		os.createProcess(2);
-		os.createProcess(1);
-		
-		dispatcher2();
 
+		
+		
+//		dispatcher();
+		dispatcher2();
 
 	}
 
 	public static void dispatcher2() {
-		 t1 = new Thread() {
+		t1 = new Thread() {
 			public void run() {
 
-					while (true) {
+				while (true) {
 
-						try {
-							/*
-							 * Remove the next process from the ReadyQueue based on the First Come First
-							 * Serve concept
-							 */
-							System.out.println("readFile: "+readFile.blockedQueue);
-							System.out.println("writeFile: "+writeFile.blockedQueue);
-							System.out.println("printText: "+printText.blockedQueue);
-							System.out.println("takeInput: "+takeInput.blockedQueue);
+					try {
+						/*
+						 * Remove the next process from the ReadyQueue based on the First Come First
+						 * Serve concept
+						 */
+						// The printing statements used for printing in which semaphore the processes
+						// are blocked
+//						System.out.println("readFile: "+readFile.blockedQueue);
+//						System.out.println("writeFile: "+writeFile.blockedQueue);
+//						System.out.println("printText: "+printText.blockedQueue);
+//						System.out.println("takeInput: "+takeInput.blockedQueue);
 
-							if(ReadyQueue.isEmpty())t1.suspend();
-							Process p = os.removeElement();
-							// If this the first time to execute the process invoke the .start() method
-							if (!p.started) {
-								p.status = ProcessState.Running;
-								p.started = true;
-								p.start();
+						if (ReadyQueue.isEmpty())
+							t1.suspend();
+						Process p = os.removeElement();
+						// If this the first time to execute the process invoke the .start() method
+						if (!p.started) {
+							p.status = ProcessState.Running;
+							p.started = true;
+							p.start();
 
-							} else { // Otherwise resume execution of the process
-								p.status = ProcessState.Running;
-								p.resume();
-							}
-							/*
-							 * The next loop assures that the dispatcher will no dispatch another process
-							 * from the ReadyQueue till the current process either finishes
-							 * execution(terminated) or gets blocked(waiting)
-							 */
-							// Comment the next while loop if you want to run all the threads in parallel
-//							while (p.status==ProcessState.Running);
-								
-
-						} catch (Exception e) {
-							e.printStackTrace();
+						} else { // Otherwise resume execution of the process
+							p.status = ProcessState.Running;
+							p.resume();
 						}
+						/*
+						 * The next loop assures that the dispatcher will no dispatch another process
+						 * from the ReadyQueue till the current process either finishes
+						 * execution(terminated) or gets blocked(waiting)
+						 */
+						// Comment the next while loop if you want to run all the threads in parallel
+//							while (p.status==ProcessState.Running);
+
+					} catch (Exception e) {
 					}
 				}
-			
+			}
+
 		};
 		t1.start();
 	}
 
 	public static void dispatcher() {
-
 		while (!ReadyQueue.isEmpty()) {
 
 			try {
@@ -207,17 +190,16 @@ public class OperatingSystem {
 					p.status = ProcessState.Running;
 					p.resume();
 				}
+
 				/*
-				 * The next loop assures that the dispatcher will no dispatch another process
+				 * The next loop assures that the dispatcher will not dispatch another process
 				 * from the ReadyQueue till the current process either finishes
 				 * execution(terminated) or gets blocked(waiting)
 				 */
-				// Comment the next while loop if you want to run all the threads in pararrel
-//				while (p.status == ProcessState.Running)
-//					;
+				while (p.status == ProcessState.Running)
+					;
 
 			} catch (Exception e) {
-				e.printStackTrace();
 			}
 		}
 
@@ -294,7 +276,7 @@ public class OperatingSystem {
 			} else {
 				blockedQueue.add(process);
 				Process.setProcessState(process, ProcessState.Waiting);
-				
+
 				if (!isAvailable()) {
 					process.suspend();
 				}
@@ -308,9 +290,12 @@ public class OperatingSystem {
 			if (ID == processID) {
 				if (!blockedQueue.isEmpty()) {
 					Process p = blockedQueue.poll();
-					ID = p.processID;
-					Process.setProcessState(p, ProcessState.Ready);
-					os.addElement(p);
+					if (p != null) {
+						ID = p.processID;
+						Process.setProcessState(p, ProcessState.Ready);
+						os.addElement(p);
+
+					}
 				} else {
 					setAvailable();
 
